@@ -22,3 +22,12 @@ A sleek, high-performance web application designed for security enthusiasts and 
 1.  Clone the repository.
 2.  Open `index.html` in any modern web browser.
 3.  Choose your length, generation mode, and click "Generate".
+
+## 📥 Download & Access
+
+* **Latest Stable Release:** [Download here](https://github.com/anonymousxptdr360/Ultimate-Pass-Gen-Tester/releases) 📦
+* **Live Preview / Website:** [Try it on stopbordo.odoo.com](https://stopbordo.odoo.com/mdp) 🌐
+* **View Source Code:** [1.0-Ultimate-Pass-Gen-Tester.html](https://github.com/anonymousxptdr360/Ultimate-Pass-Gen-Tester/blob/main/1.0-Ultimate-Pass-Gen-Tester.html) 📄
+
+## 🚀 Quick Start
+You don't need to install anything. Just download the HTML file and open it in your favorite browser.
