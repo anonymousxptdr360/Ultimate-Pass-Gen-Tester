@@ -17,12 +17,6 @@ A sleek, high-performance web application designed for security enthusiasts and 
 * **Vanilla JavaScript:** Pure logic for generation and strength calculations (no heavy frameworks).
 * **QRCode.js:** Reliable library for client-side QR generation.
 
-## 🚀 How to use
-
-1.  Clone the repository.
-2.  Open `index.html` in any modern web browser.
-3.  Choose your length, generation mode, and click "Generate".
-
 ## 📥 Download & Access
 
 * **Latest Stable Release:** [Download here](https://github.com/anonymousxptdr360/Ultimate-Pass-Gen-Tester/releases) 📦
