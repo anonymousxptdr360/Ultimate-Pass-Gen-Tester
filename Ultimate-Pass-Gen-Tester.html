@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur & Testeur Ultime</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f4f4f5;
+            --text-color: #18181b;
+            --card-bg: #ffffff;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent: #10b981;
+            --border: #e4e4e7;
+            --danger-bg: #ef4444;
+            --warning-bg: #f59e0b;
+            --success-bg: #10b981;
+            --disabled-bg: #a1a1aa;
+            --info-bg: #e0f2fe;
+            --info-text: #0369a1;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #09090b;
+            --text-color: #f4f4f5;
+            --card-bg: #18181b;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #10b981;
+            --border: #27272a;
+            --danger-bg: #b91c1c;
+            --warning-bg: #b45309;
+            --success-bg: #059669;
+            --disabled-bg: #3f3f46;
+            --info-bg: #1e3a8a;
+            --info-text: #bfdbfe;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .top-controls button {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        h1 { margin: 0; font-size: 1.5rem; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-color);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-color);
+            border-radius: 8px 8px 0 0;
+            opacity: 0.7;
+            transition: 0.3s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            opacity: 1;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Inputs */
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 600px) { .input-group { grid-template-columns: 1fr; } }
+
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
+        
+        input[type="number"], input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+
+        /* Tooltip */
+        .tooltip-container { display: inline-block; position: relative; margin-left: 5px; cursor: help; color: var(--primary); }
+        .tooltip-text {
+            visibility: hidden; width: 220px; background-color: #333; color: #fff; text-align: center;
+            border-radius: 6px; padding: 8px; position: absolute; z-index: 1; bottom: 125%; left: 50%;
+            margin-left: -110px; opacity: 0; transition: opacity 0.3s; font-size: 0.8rem; font-weight: normal;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+        /* Buttons */
+        .btn-main {
+            width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none;
+            border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; margin-bottom: 20px;
+        }
+        .btn-main:hover { background-color: var(--primary-hover); }
+
+        .action-bar { display: flex; gap: 10px; margin-bottom: 5px; }
+        .btn-secondary {
+            flex: 1; padding: 10px; background-color: var(--border); color: var(--text-color);
+            border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s;
+        }
+        .btn-secondary:hover:not(:disabled) { opacity: 0.8; }
+        .btn-secondary:disabled { background-color: var(--disabled-bg); color: #888; cursor: not-allowed; opacity: 0.5; }
+
+        /* Password Wrapper for Eye Icon */
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .password-wrapper input { padding-right: 40px; }
+        .eye-btn {
+            position: absolute; right: 5px; background: none; border: none; cursor: pointer; color: var(--text-color); font-size: 1.1rem; opacity: 0.7;
+        }
+
+        /* Result Area */
+        .text-output {
+            width: 100%; height: 120px; padding: 15px; border-radius: 8px; border: 1px solid var(--border);
+            background-color: var(--bg-color); color: var(--text-color); font-family: 'Courier New', monospace;
+            resize: vertical; box-sizing: border-box; font-size: 1.1rem; letter-spacing: 1px; margin-bottom: 5px;
+        }
+        .text-output.masked-mode { letter-spacing: 3px; font-weight: bold; }
+        .stats { text-align: right; font-size: 0.8rem; color: #888; margin-bottom: 10px; }
+        .copy-success { text-align: center; color: var(--accent); font-weight: bold; font-size: 0.9rem; height: 20px; opacity: 0; transition: opacity 0.3s; margin-bottom: 10px; }
+        .copy-success.show { opacity: 1; }
+
+        /* Strength & Time */
+        .strength-container { margin-top: 5px; margin-bottom: 15px; }
+        .strength-bar { height: 6px; border-radius: 3px; background-color: var(--border); width: 100%; overflow: hidden; position: relative; }
+        .strength-fill { height: 100%; width: 0%; transition: width 0.3s, background-color 0.3s; }
+        .strength-text { font-size: 0.85rem; margin-top: 5px; font-weight: bold; min-height: 1.2em; }
+        
+        .crack-time {
+            margin-top: 5px; font-size: 0.9rem; color: var(--text-color); opacity: 0.8;
+        }
+        .crack-time strong { color: var(--primary); }
+
+        /* Quantum Section */
+        .quantum-section {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--info-bg);
+            border-radius: 8px;
+            display: none; /* Hidden by default */
+            font-size: 0.9rem;
+            color: var(--info-text);
+            border: 1px solid var(--border);
+        }
+        .quantum-disclaimer {
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            font-style: italic;
+            opacity: 0.9;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-bottom: 8px;
+        }
+
+        /* QR Code */
+        #qr-section {
+            display: none; text-align: center; margin-top: 20px; padding: 20px; background: #fff;
+            border-radius: 8px; width: fit-content; margin-left: auto; margin-right: auto; border: 3px solid var(--border);
+        }
+        #qrcode img { margin: 0 auto; }
+
+        /* Footer */
+        .footer { margin-top: 30px; text-align: center; }
+        .github-btn {
+            display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+            background-color: #24292e; color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; transition: transform 0.2s;
+        }
+        .github-btn:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1 id="lbl-title">Générateur Ultime</h1>
+            <div class="top-controls">
+                <button onclick="toggleTheme()" id="btn-theme">☀️/🌙</button>
+                <button onclick="toggleLang()" id="btn-lang">EN</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('gen')" id="tab-gen-btn">Générateur</button>
+            <button class="tab-btn" onclick="switchTab('test')" id="tab-test-btn">Testeur de MDP</button>
+        </div>
+
+        <div id="tab-gen" class="tab-content active">
+            <div class="input-group">
+                <div>
+                    <label id="lbl-count">Nombre de caractères</label>
+                    <input type="number" id="charCount" value="40" min="1">
+                </div>
+                <div>
+                    <label>
+                        <span id="lbl-mode">Mode de génération</span>
+                        <div class="tooltip-container">❓<span class="tooltip-text" id="tooltip-desc">Le Lorem Ipsum est un faux texte standard...</span></div>
+                    </label>
+                    <select id="genMode">
+                        <option value="password">Mixte (Symboles, Lettres...)</option>
+                        <option value="words">Texte (Lorem Ipsum)</option>
+                    </select>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="useSpaces">
+                        <label for="useSpaces" id="lbl-spaces">Inclure des espaces</label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-main" onclick="generate()" id="btn-generate">Générer</button>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+            <div class="action-bar">
+                <button class="btn-secondary" onclick="toggleVisibility()" id="btn-toggle-mask">👁️ Afficher</button>
+                <button class="btn-secondary" onclick="copyText()" id="btn-copy">📋 Copier</button>
+                <button class="btn-secondary" onclick="showQR()" id="btn-qr">📱 QR Code</button>
+            </div>
+            <div id="copy-feedback" class="copy-success"></div>
+
+            <div class="result-container">
+                <textarea id="output" class="text-output masked-mode" readonly></textarea>
+                <div class="strength-container">
+                    <div class="strength-bar"><div id="gen-strength-fill" class="strength-fill"></div></div>
+                    <div id="gen-strength-text" class="strength-text"></div>
+                </div>
+                <div class="stats">
+                    <span id="lbl-realtime">Longueur réelle :</span> <span id="currentCount">0</span>
+                </div>
+            </div>
+            <div id="qr-section"><div id="qrcode"></div></div>
+        </div>
+
+        <div id="tab-test" class="tab-content">
+            <h2 style="margin-top:0; font-size:1.2rem;" id="title-tester">Testez votre mot de passe</h2>
+            <p style="font-size:0.9rem; opacity:0.8;" id="desc-tester">Tapez un mot de passe pour voir s'il est sécurisé.</p>
+            
+            <div class="password-wrapper">
+                <input type="password" id="test-input" placeholder="Tapez ici..." onkeyup="checkTestStrength()">
+                <button class="eye-btn" onclick="toggleTestInput()" id="btn-test-eye">👁️</button>
+            </div>
+            
+            <div class="strength-container" style="margin-top:15px;">
+                <div class="strength-bar"><div id="test-strength-fill" class="strength-fill"></div></div>
+                <div id="test-strength-text" class="strength-text" style="text-align:center;"></div>
+                
+                <div class="crack-time" id="crack-time-standard"></div>
+            </div>
+
+            <button class="btn-secondary" onclick="toggleQuantum()" id="btn-quantum">⚛️ Analyse Quantique</button>
+            
+            <div id="quantum-section" class="quantum-section">
+                <div class="quantum-disclaimer" id="quantum-msg">
+                    ℹ️ Info : L'ordinateur quantique est une technologie expérimentale très puissante. Elle est actuellement rare, très chère et strictement contrôlée par des laboratoires de recherche. Pas d'inquiétude pour vos comptes personnels pour l'instant !
+                </div>
+                <div class="crack-time" id="crack-time-quantum"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <a href="https://github.com/anonymousxptdr360" target="_blank" class="github-btn">
+            <svg height="20" width="20" viewBox="0 0 16 16" fill="white">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+            anonymousxptdr360
+        </a>
+    </div>
+
+    <script>
+        // Config
+        let currentLang = 'fr';
+        let actualGeneratedText = "";
+        let isMasked = true;
+        const QR_LIMIT = 2950; // MODIFIÉ À 2950
+
+        const langData = {
+            fr: {
+                title: "Générateur Ultime",
+                lblCount: "Nombre de caractères",
+                lblMode: "Mode de génération",
+                lblSpaces: "Inclure des espaces",
+                optPass: "Mixte (Symboles, Lettres...)",
+                optWords: "Texte (Lorem Ipsum)",
+                btnGen: "Générer",
+                btnMaskShow: "👁️ Afficher",
+                btnMaskHide: "🔒 Masquer",
+                btnCopy: "📋 Copier",
+                btnQr: "📱 QR Code",
+                stats: "Longueur réelle :",
+                copySuccess: "✅ Texte copié avec succès !",
+                qrDisabled: "QR Code (Max 2950 car.)",
+                tooltip: "Le Lorem Ipsum est un faux texte standard utilisé en imprimerie...",
+                tabGen: "Générateur",
+                tabTest: "Testeur de MDP",
+                titleTest: "Testez votre mot de passe",
+                descTest: "Tapez un mot de passe pour voir s'il est sécurisé.",
+                phTest: "Tapez ici...",
+                stWeak: "Faible 🔴",
+                stMed: "Moyen 🟠",
+                stGood: "Bon 🟢",
+                timePrefix: "Temps estimé pour déchiffrer (PC Puissant) : ",
+                qBtn: "⚛️ Analyse Quantique",
+                qPrefix: "Temps estimé (Quantique) : ",
+                qMsg: "ℹ️ Info : L'ordinateur quantique est une technologie expérimentale très puissante. Elle est actuellement rare, très chère et strictement contrôlée par des laboratoires de recherche. Pas d'inquiétude pour vos comptes personnels pour l'instant !"
+            },
+            en: {
+                title: "Ultimate Generator",
+                lblCount: "Character Count",
+                lblMode: "Generation Mode",
+                lblSpaces: "Include Spaces",
+                optPass: "Mixed (Symbols, Letters...)",
+                optWords: "Text (Lorem Ipsum)",
+                btnGen: "Generate",
+                btnMaskShow: "👁️ Show",
+                btnMaskHide: "🔒 Hide",
+                btnCopy: "📋 Copy",
+                btnQr: "📱 QR Code",
+                stats: "Actual Length:",
+                copySuccess: "✅ Text copied successfully!",
+                qrDisabled: "QR Code (Max 2950 chars)",
+                tooltip: "Lorem Ipsum is standard dummy text used in printing...",
+                tabGen: "Generator",
+                tabTest: "Password Tester",
+                titleTest: "Test your password",
+                descTest: "Type a password to see if it is secure.",
+                phTest: "Type here...",
+                stWeak: "Weak 🔴",
+                stMed: "Medium 🟠",
+                stGood: "Good 🟢",
+                timePrefix: "Est. time to crack (High-end PC): ",
+                qBtn: "⚛️ Quantum Analysis",
+                qPrefix: "Est. time (Quantum): ",
+                qMsg: "ℹ️ Info: Quantum computers are powerful experimental machines. They are currently rare, expensive, and strictly controlled by research labs. No need to worry about your personal accounts yet!"
+            }
+        };
+        
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+        const words = ["lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "robot", "code", "random", "security", "github", "data", "system", "web", "cyber", "matrix"];
+
+        window.onload = function() {
+            generate(); 
+            // Ajout de l'événement "Entrée"
+            document.getElementById('charCount').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    generate();
+                }
+            });
+        };
+
+        // --- Tabs System ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.getElementById('tab-' + tabName + '-btn').classList.add('active');
+        }
+
+        // --- Generator Logic ---
+        function generate() {
+            const countInput = document.getElementById('charCount');
+            let count = parseInt(countInput.value);
+            if (isNaN(count) || count < 1) { count = 1; countInput.value = 1; }
+            
+            const mode = document.getElementById('genMode').value;
+            const useSpaces = document.getElementById('useSpaces').checked;
+            let result = "";
+            
+            if (mode === 'password') {
+                const charSet = useSpaces ? chars + "             " : chars;
+                for (let i = 0; i < count; i++) {
+                    result += charSet.charAt(Math.floor(Math.random() * charSet.length));
+                }
+            } else {
+                while (result.length < count) {
+                    const randomWord = words[Math.floor(Math.random() * words.length)];
+                    result += randomWord;
+                    if (useSpaces) result += " ";
+                }
+            }
+            if (result.length > count) result = result.substring(0, count);
+            else while (result.length < count) result += chars.charAt(Math.floor(Math.random() * chars.length));
+
+            actualGeneratedText = result;
+            isMasked = true;
+            updateTextareaView();
+            document.getElementById('qr-section').style.display = 'none';
+            document.getElementById('currentCount').innerText = count;
+            checkQRButtonState(count);
+            calculateStrength(result, 'gen-strength-fill', 'gen-strength-text');
+        }
+
+        // --- Tester Logic ---
+        function toggleTestInput() {
+            const input = document.getElementById('test-input');
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+        }
+
+        function checkTestStrength() {
+            const input = document.getElementById('test-input').value;
+            calculateStrength(input, 'test-strength-fill', 'test-strength-text');
+            calculateCrackTime(input);
+        }
+
+        function toggleQuantum() {
+            const sec = document.getElementById('quantum-section');
+            sec.style.display = (sec.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // --- Math & Estimation ---
+        function calculateStrength(text, barId, textId) {
+            const bar = document.getElementById(barId);
+            const lbl = document.getElementById(textId);
+            const len = text.length;
+            const t = langData[currentLang];
+
+            let color = "var(--danger-bg)";
+            let width = "10%";
+            let label = t.stWeak;
+
+            if (len === 0) { width = "0%"; label = ""; }
+            else if (len >= 20) { color = "var(--success-bg)"; width = "100%"; label = ""; }
+            else if (len >= 12) { color = "var(--success-bg)"; width = "80%"; label = t.stGood; }
+            else if (len >= 8) { color = "var(--warning-bg)"; width = "50%"; label = t.stMed; }
+            else { width = "20%"; label = t.stWeak; }
+
+            bar.style.backgroundColor = color;
+            bar.style.width = width;
+            lbl.innerText = label;
+            lbl.style.color = color;
+        }
+
+        function calculateCrackTime(password) {
+            if(!password) {
+                document.getElementById('crack-time-standard').innerText = "";
+                document.getElementById('crack-time-quantum').innerText = "";
+                return;
+            }
+
+            let pool = 0;
+            if (/[a-z]/.test(password)) pool += 26;
+            if (/[A-Z]/.test(password)) pool += 26;
+            if (/[0-9]/.test(password)) pool += 10;
+            if (/[^a-zA-Z0-9]/.test(password)) pool += 33; 
+            if (pool === 0) pool = 10;
+
+            const combinations = Math.pow(pool, password.length);
+            const speedStandard = 1e11; 
+            const combinationsQuantum = Math.sqrt(combinations);
+            const speedQuantum = 1e9;
+
+            const secondsStd = combinations / speedStandard;
+            const secondsQ = combinationsQuantum / speedQuantum;
+
+            const t = langData[currentLang];
+            document.getElementById('crack-time-standard').innerHTML = t.timePrefix + "<strong>" + formatTime(secondsStd) + "</strong>";
+            document.getElementById('crack-time-quantum').innerHTML = t.qPrefix + "<strong>" + formatTime(secondsQ) + "</strong>";
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 1) return "Instantané ! 😱";
+            if (seconds < 60) return Math.round(seconds) + " secondes";
+            let minutes = seconds / 60;
+            if (minutes < 60) return Math.round(minutes) + " minutes";
+            let hours = minutes / 60;
+            if (hours < 24) return Math.round(hours) + " heures";
+            let days = hours / 24;
+            if (days < 365) return Math.round(days) + " jours";
+            let years = days / 365;
+            if (years < 1000) return Math.round(years) + " ans";
+            if (years < 1000000) return Math.round(years / 1000) + " millénaires";
+            return "Une éternité (+ de 1M d'années) 🌌";
+        }
+
+        // --- Common UI ---
+        function checkQRButtonState(length) {
+            const qrBtn = document.getElementById('btn-qr');
+            const t = langData[currentLang];
+            if (length > QR_LIMIT) {
+                qrBtn.disabled = true;
+                qrBtn.innerText = t.qrDisabled;
+                qrBtn.title = "Limite atteinte";
+            } else {
+                qrBtn.disabled = false;
+                qrBtn.innerText = t.btnQr;
+                qrBtn.title = "";
+            }
+        }
+
+        function updateTextareaView() {
+             const outputEl = document.getElementById('output');
+             const maskBtn = document.getElementById('btn-toggle-mask');
+             const t = langData[currentLang];
+             if (isMasked) {
+                 outputEl.value = "*".repeat(actualGeneratedText.length);
+                 outputEl.classList.add('masked-mode');
+                 maskBtn.innerText = t.btnMaskShow;
+             } else {
+                 outputEl.value = actualGeneratedText;
+                 outputEl.classList.remove('masked-mode');
+                 maskBtn.innerText = t.btnMaskHide;
+             }
+        }
+
+        function toggleVisibility() {
+            isMasked = !isMasked;
+            updateTextareaView();
+        }
+
+        function copyText() {
+            if (!actualGeneratedText) return;
+            navigator.clipboard.writeText(actualGeneratedText).then(() => {
+                const feedback = document.getElementById('copy-feedback');
+                feedback.innerText = langData[currentLang].copySuccess;
+                feedback.classList.add('show');
+                setTimeout(() => { feedback.classList.remove('show'); }, 2000);
+            });
+        }
+
+        function showQR() {
+            if (actualGeneratedText.length > QR_LIMIT || actualGeneratedText.length === 0) return;
+            const qrContainer = document.getElementById('qrcode');
+            const qrSection = document.getElementById('qr-section');
+            qrContainer.innerHTML = ""; 
+            qrSection.style.display = 'block';
+
+            new QRCode(qrContainer, {
+                text: actualGeneratedText,
+                width: 512,
+                height: 512,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.L
+            });
+            qrSection.scrollIntoView({behavior: "smooth"});
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'fr' ? 'en' : 'fr';
+            const btn = document.getElementById('btn-lang');
+            btn.innerText = currentLang === 'fr' ? 'EN' : 'FR';
+            
+            const t = langData[currentLang];
+            document.getElementById('lbl-title').innerText = t.title;
+            document.getElementById('lbl-count').innerText = t.lblCount;
+            document.getElementById('lbl-mode').innerText = t.lblMode;
+            document.getElementById('lbl-spaces').innerText = t.lblSpaces;
+            document.getElementById('btn-generate').innerText = t.btnGen;
+            document.getElementById('btn-copy').innerText = t.btnCopy;
+            document.getElementById('lbl-realtime').innerText = t.stats;
+            document.getElementById('tooltip-desc').innerText = t.tooltip;
+            document.getElementById('tab-gen-btn').innerText = t.tabGen;
+            document.getElementById('tab-test-btn').innerText = t.tabTest;
+            document.getElementById('title-tester').innerText = t.titleTest;
+            document.getElementById('desc-tester').innerText = t.descTest;
+            document.getElementById('test-input').placeholder = t.phTest;
+            document.getElementById('btn-quantum').innerText = t.qBtn;
+            document.getElementById('quantum-msg').innerText = t.qMsg;
+
+            const select = document.getElementById('genMode');
+            select.options[0].text = t.optPass;
+            select.options[1].text = t.optWords;
+
+            updateTextareaView();
+            checkQRButtonState(actualGeneratedText.length);
+            calculateStrength(actualGeneratedText, 'gen-strength-fill', 'gen-strength-text');
+            checkTestStrength();
+        }
+    </script>
+</body>
+</html>
