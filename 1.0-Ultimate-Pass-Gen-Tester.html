@@ -113,7 +113,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         @media (max-width: 600px) { .input-group { grid-template-columns: 1fr; } }
 
@@ -127,6 +127,31 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             box-sizing: border-box;
+        }
+
+        /* New Options Grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        input[type="checkbox"] {
+            transform: scale(1.2);
+            cursor: pointer;
         }
 
         .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
@@ -144,7 +169,7 @@
         /* Buttons */
         .btn-main {
             width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none;
-            border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; margin-bottom: 20px;
+            border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; margin-bottom: 20px; margin-top: 15px;
         }
         .btn-main:hover { background-color: var(--primary-hover); }
 
@@ -252,15 +277,23 @@
                         <span id="lbl-mode">Mode de génération</span>
                         <div class="tooltip-container">❓<span class="tooltip-text" id="tooltip-desc">Le Lorem Ipsum est un faux texte standard...</span></div>
                     </label>
-                    <select id="genMode">
-                        <option value="password">Mixte (Symboles, Lettres...)</option>
+                    <select id="genMode" onchange="toggleOptions()">
+                        <option value="password">Mot de passe / Mixte</option>
                         <option value="words">Texte (Lorem Ipsum)</option>
                     </select>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="useSpaces">
-                        <label for="useSpaces" id="lbl-spaces">Inclure des espaces</label>
-                    </div>
                 </div>
+            </div>
+
+            <div id="password-options" class="options-grid">
+                <label class="checkbox-item"><input type="checkbox" id="inc-upper" checked> <span id="lbl-upper">Majuscules (A-Z)</span></label>
+                <label class="checkbox-item"><input type="checkbox" id="inc-lower" checked> <span id="lbl-lower">Minuscules (a-z)</span></label>
+                <label class="checkbox-item"><input type="checkbox" id="inc-num" checked> <span id="lbl-num">Chiffres (0-9)</span></label>
+                <label class="checkbox-item"><input type="checkbox" id="inc-sym" checked> <span id="lbl-sym">Symboles (!@#)</span></label>
+            </div>
+
+            <div class="checkbox-group" style="margin-top:10px;">
+                <input type="checkbox" id="useSpaces">
+                <label for="useSpaces" id="lbl-spaces" style="margin-bottom:0;">Inclure des espaces</label>
             </div>
 
             <button class="btn-main" onclick="generate()" id="btn-generate">Générer</button>
@@ -326,7 +359,7 @@
         let currentLang = 'fr';
         let actualGeneratedText = "";
         let isMasked = true;
-        const QR_LIMIT = 2950; // MODIFIÉ À 2950
+        const QR_LIMIT = 2950; 
 
         const langData = {
             fr: {
@@ -334,8 +367,15 @@
                 lblCount: "Nombre de caractères",
                 lblMode: "Mode de génération",
                 lblSpaces: "Inclure des espaces",
-                optPass: "Mixte (Symboles, Lettres...)",
+                optPass: "Mot de passe / Mixte",
                 optWords: "Texte (Lorem Ipsum)",
+                
+                // Nouveaux labels
+                lblUpper: "Majuscules (A-Z)",
+                lblLower: "Minuscules (a-z)",
+                lblNum: "Chiffres (0-9)",
+                lblSym: "Symboles (!@#)",
+
                 btnGen: "Générer",
                 btnMaskShow: "👁️ Afficher",
                 btnMaskHide: "🔒 Masquer",
@@ -363,8 +403,15 @@
                 lblCount: "Character Count",
                 lblMode: "Generation Mode",
                 lblSpaces: "Include Spaces",
-                optPass: "Mixed (Symbols, Letters...)",
+                optPass: "Password / Mixed",
                 optWords: "Text (Lorem Ipsum)",
+                
+                // New Labels
+                lblUpper: "Uppercase (A-Z)",
+                lblLower: "Lowercase (a-z)",
+                lblNum: "Numbers (0-9)",
+                lblSym: "Symbols (!@#)",
+
                 btnGen: "Generate",
                 btnMaskShow: "👁️ Show",
                 btnMaskHide: "🔒 Hide",
@@ -389,7 +436,14 @@
             }
         };
         
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+        // Définition séparée des caractères
+        const charSets = {
+            upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            lower: "abcdefghijklmnopqrstuvwxyz",
+            numbers: "0123456789",
+            symbols: "!@#$%^&*()_+-=[]{}|;:,.<>?"
+        };
+
         const words = ["lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "robot", "code", "random", "security", "github", "data", "system", "web", "cyber", "matrix"];
 
         window.onload = function() {
@@ -410,6 +464,16 @@
             document.getElementById('tab-' + tabName + '-btn').classList.add('active');
         }
 
+        function toggleOptions() {
+            const mode = document.getElementById('genMode').value;
+            const optionsDiv = document.getElementById('password-options');
+            if(mode === 'password') {
+                optionsDiv.style.display = 'grid';
+            } else {
+                optionsDiv.style.display = 'none';
+            }
+        }
+
         // --- Generator Logic ---
         function generate() {
             const countInput = document.getElementById('charCount');
@@ -421,11 +485,29 @@
             let result = "";
             
             if (mode === 'password') {
-                const charSet = useSpaces ? chars + "             " : chars;
+                let currentChars = "";
+                
+                // Vérifier les cases cochées
+                if(document.getElementById('inc-upper').checked) currentChars += charSets.upper;
+                if(document.getElementById('inc-lower').checked) currentChars += charSets.lower;
+                if(document.getElementById('inc-num').checked) currentChars += charSets.numbers;
+                if(document.getElementById('inc-sym').checked) currentChars += charSets.symbols;
+
+                // Sécurité : si rien n'est coché, on met par défaut minuscules + chiffres
+                if (currentChars === "") {
+                    currentChars = charSets.lower + charSets.numbers;
+                    // On recoche visuellement pour l'utilisateur
+                    document.getElementById('inc-lower').checked = true;
+                    document.getElementById('inc-num').checked = true;
+                }
+
+                if (useSpaces) currentChars += "              "; // Espaces pour diluer
+
                 for (let i = 0; i < count; i++) {
-                    result += charSet.charAt(Math.floor(Math.random() * charSet.length));
+                    result += currentChars.charAt(Math.floor(Math.random() * currentChars.length));
                 }
             } else {
+                // Mode mots (Lorem Ipsum)
                 while (result.length < count) {
                     const randomWord = words[Math.floor(Math.random() * words.length)];
                     result += randomWord;
@@ -433,7 +515,10 @@
                 }
             }
             if (result.length > count) result = result.substring(0, count);
-            else while (result.length < count) result += chars.charAt(Math.floor(Math.random() * chars.length));
+            else if (mode !== 'password') {
+                // Si on a besoin de compléter en mode texte
+                 while (result.length < count) result += charSets.lower.charAt(Math.floor(Math.random() * charSets.lower.length));
+            }
 
             actualGeneratedText = result;
             isMasked = true;
@@ -473,10 +558,18 @@
             let width = "10%";
             let label = t.stWeak;
 
+            // Analyse de base
+            let score = 0;
+            if (len > 8) score++;
+            if (len > 12) score++;
+            if (len >= 20) score++;
+            if (/[A-Z]/.test(text)) score++;
+            if (/[0-9]/.test(text)) score++;
+            if (/[^A-Za-z0-9]/.test(text)) score++;
+
             if (len === 0) { width = "0%"; label = ""; }
-            else if (len >= 20) { color = "var(--success-bg)"; width = "100%"; label = ""; }
-            else if (len >= 12) { color = "var(--success-bg)"; width = "80%"; label = t.stGood; }
-            else if (len >= 8) { color = "var(--warning-bg)"; width = "50%"; label = t.stMed; }
+            else if (score >= 5) { color = "var(--success-bg)"; width = "100%"; label = t.stGood; }
+            else if (score >= 3) { color = "var(--warning-bg)"; width = "50%"; label = t.stMed; }
             else { width = "20%"; label = t.stWeak; }
 
             bar.style.backgroundColor = color;
@@ -617,6 +710,12 @@
             document.getElementById('test-input').placeholder = t.phTest;
             document.getElementById('btn-quantum').innerText = t.qBtn;
             document.getElementById('quantum-msg').innerText = t.qMsg;
+
+            // Traduction des nouveaux labels
+            document.getElementById('lbl-upper').innerText = t.lblUpper;
+            document.getElementById('lbl-lower').innerText = t.lblLower;
+            document.getElementById('lbl-num').innerText = t.lblNum;
+            document.getElementById('lbl-sym').innerText = t.lblSym;
 
             const select = document.getElementById('genMode');
             select.options[0].text = t.optPass;
