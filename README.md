@@ -21,7 +21,7 @@ A sleek, high-performance web application designed for security enthusiasts and 
 
 * **Latest Stable Release:** [Download here](https://github.com/anonymousxptdr360/Ultimate-Pass-Gen-Tester/releases) 📦
 * **Live Preview / Website:** [Try it on stopbordo.odoo.com](https://stopbordo.odoo.com/mdp) 🌐
-* **View Source Code:** [1.0-Ultimate-Pass-Gen-Tester.html](https://github.com/anonymousxptdr360/Ultimate-Pass-Gen-Tester/blob/main/1.0-Ultimate-Pass-Gen-Tester.html) 📄
+* **View Source Code:** [1.1-Ultimate-Pass-Gen-Tester.html](https://github.com/anonymousxptdr360/Ultimate-Pass-Gen-Tester/blob/main/1.1-Ultimate-Pass-Gen-Tester.html) 📄
 
 ## 🚀 Quick Start
 You don't need to install anything. Just download the HTML file and open it in your favorite browser.
